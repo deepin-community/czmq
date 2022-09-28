@@ -1,0 +1,45 @@
+#!/usr/bin/make -f
+#export DH_VERBOSE=1
+export DEB_BUILD_MAINT_OPTIONS = hardening=+all
+
+# see EXAMPLES in dpkg-buildflags(1) and read /usr/share/dpkg/*
+include /usr/share/dpkg/default.mk
+
+DOCS = yes
+ifneq (,$(filter nodoc,$(DEB_BUILD_OPTIONS)))
+DOCS = no
+endif
+ifneq (,$(filter nodoc,$(DEB_BUILD_PROFILES)))
+DOCS = no
+endif
+
+TESTS = yes
+ifneq (,$(filter nocheck,$(DEB_BUILD_OPTIONS)))
+TESTS = no
+endif
+ifneq (,$(filter nocheck,$(DEB_BUILD_PROFILES)))
+TESTS = no
+endif
+
+%:
+	dh $@
+
+
+override_dh_auto_configure:
+	dh_auto_configure -- \
+		--with-uuid=yes \
+		--with-libsystemd=yes \
+		--with-docs=$(DOCS) \
+		--enable-drafts=no
+
+override_dh_installchangelogs:
+	dh_installchangelogs NEWS
+
+# unit tests are too unreliable on buildd, even i386.
+# and on mips it seems to hang, so avoid running it.
+override_dh_auto_test:
+ifeq (yes,$(TESTS))
+ifneq ($(DEB_HOST_ARCH),mips)
+	-dh_auto_test -- VERBOSE=1
+endif
+endif

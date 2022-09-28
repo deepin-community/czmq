@@ -1,0 +1,2 @@
+version=4
+https://github.com/zeromq/czmq/releases .*/v\d.+/czmq-([\d\.]+)\.(?:tgz|tbz2|txz|tar\.(?:gz|bz2|xz))
